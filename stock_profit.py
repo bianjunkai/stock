@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# 利用Tushare包中的fina_indicator函数，获取对应股票18年各季度的营业收入、扣非利润、资产负债率和ROE
+# 获取对应股票15 16 17年财报中的净收入和营业利润
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -8,7 +8,7 @@ from sqlalchemy import  String,Column,Integer,VARCHAR
 import time
 import tushare as ts
 
-pro = ts.pro_api()
+pro = ts.pro_api('3018316ac34e7cea61b55097a38b8da87fdd945c6cfec15b52dde455')
 
 engine = create_engine('mysql+pymysql://root:root@localhost:3306/stock_base?charset=utf8')
 Session = sessionmaker(bind=engine)
@@ -26,8 +26,13 @@ try:
 	session = Session()
 	stocks=session.query(Stock).all()
 	for stock in stocks:
-		df_cursor = pro.query('fina_indicator',ts_code=stock.ts_code,start_date='20180101',fields='ts_code,end_date,q_dtprofit,q_gsprofit_margin,debt_to_assets,roe')
-		df_cursor.to_sql('stock_zj_fin',con=engine,if_exists='append',index=False)
+		df_cursor = pro.query('income',ts_code=stock.ts_code,period='20161231',fields='ts_code,end_date,operate_profit,n_income')
+		df_cursor.to_sql('stock_zj_base',con=engine,if_exists='append',index=False)
+		print("Get the 2016 year report of "+stock.ts_code)
+		time.sleep(1)
+		df_cursor = pro.query('income',ts_code=stock.ts_code,period='20151231',fields='ts_code,end_date,operate_profit,n_income')
+		df_cursor.to_sql('stock_zj_base',con=engine,if_exists='append',index=False)
+		print("Get the 2015 year report of "+stock.ts_code)
 		time.sleep(1)
 except Exception as e:
 	print(e)

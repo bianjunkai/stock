@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+# 获取Tushare包中，股票的基本信息，主要包括代码、名称、地区和产业
+
 import tushare as ts
 from sqlalchemy import create_engine
 import pymysql
